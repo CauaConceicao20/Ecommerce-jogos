@@ -86,3 +86,7 @@ INSERT INTO public.categories (name, description) VALUES
     ('RPG', 'Jogos de interpretação de papéis'),
     ('Esporte', 'Jogos esportivos'),
     ('Estratégia', 'Jogos de estratégia e planejamento');
+
+INSERT INTO public.roles (name, description) VALUES
+    ('USER', 'Usuário padrão do sistema'),
+    ('ADMIN', 'Administrador do sistema');

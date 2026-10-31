@@ -1,0 +1,93 @@
+package dao;
+
+import config.ConexaoBancoDados;
+import model.usuario.Role;
+import model.usuario.Usuario;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashSet;
+import java.util.Set;
+
+public class UsuarioDao {
+
+    public Usuario inserir(Usuario usuario) {
+        String sql = "INSERT INTO public.users (name, email, password, phone, role_id) VALUES (?, ?, ?, ?, ?)";
+
+        Connection conn = null;
+        PreparedStatement pstm = null;
+        try {
+            conn = ConexaoBancoDados.obterConexao();
+            pstm = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+
+            pstm.setString(1, usuario.getNome());
+            pstm.setString(2, usuario.getEmail());
+            pstm.setString(3, usuario.getSenha());
+            pstm.setString(4, usuario.getTelefone());
+            pstm.setLong(5, usuario.getRole().getId());
+            pstm.execute();
+
+            ResultSet rs = pstm.getGeneratedKeys();
+            if (rs.next()) usuario.setId(rs.getLong(1));
+
+            return usuario;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (pstm != null) pstm.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Set<Usuario> listarTodos() {
+        String sql =
+                "SELECT u.*, r.name AS role_name, r.description AS role_description" +
+                " FROM public.users u " +
+                "JOIN public.roles r " +
+                "ON u.role_id = r.id";
+
+        Connection conn = null;
+        PreparedStatement pstm = null;
+        Set<Usuario> usuarios = new HashSet<>();
+
+        try {
+            conn = ConexaoBancoDados.obterConexao();
+            pstm = conn.prepareStatement(sql);
+
+            ResultSet rs = pstm.executeQuery();
+            while (rs.next()) {
+                Role role = new Role();
+                role.setId(rs.getLong("role_id"));
+                role.setNome(rs.getString("role_name"));
+                role.setDescricao(rs.getString("role_description"));
+
+                Usuario usuario = new Usuario();
+                usuario.setId(rs.getLong("id"));
+                usuario.setNome(rs.getString("name"));
+                usuario.setEmail(rs.getString("email"));
+                usuario.setSenha(rs.getString("password"));
+                usuario.setTelefone(rs.getString("phone"));
+                usuario.setAtivo(rs.getBoolean("active"));
+                usuario.setRole(role);
+                usuarios.add(usuario);
+            }
+            return usuarios;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return usuarios;
+        } finally {
+            try {
+                if (pstm != null) pstm.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}

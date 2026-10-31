@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS public.cart_items;
+DROP TABLE IF EXISTS public.carts;
 DROP TABLE IF EXISTS public.order_items;
 DROP TABLE IF EXISTS public.orders;
 DROP TABLE IF EXISTS public.games;
@@ -46,6 +48,25 @@ CREATE TABLE IF NOT EXISTS public.games (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     category_id BIGINT NOT NULL,
     CONSTRAINT fk_game_category FOREIGN KEY (category_id) REFERENCES public.categories(id)
+);
+
+CREATE TABLE IF NOT EXISTS public.carts (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    user_id BIGINT UNIQUE NOT NULL,
+    CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+
+CREATE TABLE IF NOT EXISTS public.cart_items (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    quantity INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    cart_id BIGINT NOT NULL,
+    game_id BIGINT NOT NULL,
+    CONSTRAINT fk_cart_item_cart FOREIGN KEY (cart_id) REFERENCES public.carts(id),
+    CONSTRAINT fk_cart_item_game FOREIGN KEY (game_id) REFERENCES public.games(id)
 );
 
 CREATE TABLE IF NOT EXISTS public.status (

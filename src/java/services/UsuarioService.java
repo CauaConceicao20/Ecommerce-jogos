@@ -10,7 +10,7 @@ public class UsuarioService {
     private final UsuarioDao usuarioDao = new UsuarioDao();
 
     public Usuario salvar(Usuario usuario) {
-        return usuarioDao.inserir(usuario);
+        return usuarioDao.inserirUsuarioComCarrinho(usuario);
     }
 
     public Set<Usuario> listarTodos() {

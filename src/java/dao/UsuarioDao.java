@@ -1,48 +1,58 @@
 package dao;
 
 import config.ConexaoBancoDados;
+import model.carrinho.Carrinho;
 import model.usuario.Role;
 import model.usuario.Usuario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class UsuarioDao {
 
-    public Usuario inserir(Usuario usuario) {
-        String sql = "INSERT INTO public.users (name, email, password, phone, role_id) VALUES (?, ?, ?, ?, ?)";
+    private final CarrinhoDao carrinhoDao = new CarrinhoDao();
 
+    public Usuario inserirUsuarioComCarrinho(Usuario usuario) {
         Connection conn = null;
-        PreparedStatement pstm = null;
         try {
             conn = ConexaoBancoDados.obterConexao();
-            pstm = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            conn.setAutoCommit(false);
 
-            pstm.setString(1, usuario.getNome());
-            pstm.setString(2, usuario.getEmail());
-            pstm.setString(3, usuario.getSenha());
-            pstm.setString(4, usuario.getTelefone());
-            pstm.setLong(5, usuario.getRole().getId());
-            pstm.execute();
+            inserir(usuario, conn);
 
-            ResultSet rs = pstm.getGeneratedKeys();
-            if (rs.next()) usuario.setId(rs.getLong(1));
+            Carrinho carrinho = new Carrinho(usuario);
+            carrinhoDao.inserir(carrinho, conn);
 
+            conn.commit();
             return usuario;
         } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             e.printStackTrace();
             return null;
         } finally {
-            try {
-                if (pstm != null) pstm.close();
-                if (conn != null) conn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            try { if (conn != null) conn.close(); } catch (Exception e) { e.printStackTrace(); }
         }
+    }
+
+    public Usuario inserir(Usuario usuario, Connection conn) throws SQLException {
+        String sql = "INSERT INTO public.users (name, email, password, phone, role_id) VALUES (?, ?, ?, ?, ?)";
+
+        PreparedStatement pstm = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+        pstm.setString(1, usuario.getNome());
+        pstm.setString(2, usuario.getEmail());
+        pstm.setString(3, usuario.getSenha());
+        pstm.setString(4, usuario.getTelefone());
+        pstm.setLong(5, usuario.getRole().getId());
+        pstm.execute();
+
+        ResultSet rs = pstm.getGeneratedKeys();
+        if (rs.next()) usuario.setId(rs.getLong(1));
+
+        return usuario;
     }
 
     public Set<Usuario> listarTodos() {

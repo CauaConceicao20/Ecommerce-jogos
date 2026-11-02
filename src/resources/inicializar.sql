@@ -80,6 +80,15 @@ CREATE TABLE IF NOT EXISTS public.order_items (
     CONSTRAINT fk_order_item_game FOREIGN KEY (game_id) REFERENCES public.games(id)
 );
 
+CREATE TABLE IF NOT EXISTS public.carts (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    user_id BIGINT UNIQUE NOT NULL,
+    CONSTRAINT fk_cart_user FOREIGN KEY (user_id)
+        REFERENCES public.users(id)
+);
+
 CREATE TABLE IF NOT EXISTS public.cart_items (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     quantity INTEGER NOT NULL,

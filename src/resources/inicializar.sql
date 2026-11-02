@@ -80,6 +80,20 @@ CREATE TABLE IF NOT EXISTS public.order_items (
     CONSTRAINT fk_order_item_game FOREIGN KEY (game_id) REFERENCES public.games(id)
 );
 
+CREATE TABLE IF NOT EXISTS public.cart_items (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    quantity INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    cart_id BIGINT NOT NULL,
+    game_id BIGINT NOT NULL,
+    CONSTRAINT fk_cart_item_cart
+        FOREIGN KEY (cart_id) REFERENCES public.carts(id),
+    CONSTRAINT fk_cart_item_game
+        FOREIGN KEY (game_id) REFERENCES public.games(id),
+    CONSTRAINT uq_cart_game UNIQUE (cart_id, game_id)
+);
+
 INSERT INTO public.categories (name, description) VALUES
     ('Ação', 'Jogos de ação e combate'),
     ('Aventura', 'Jogos de exploração e aventura'),

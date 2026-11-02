@@ -3,6 +3,7 @@ package app;
 import config.InicializadorBancoDados;
 import menu.OperacoesJogo;
 import menu.OperacoesUsuario;
+import menu.OperacoesCarrinho;
 
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -12,6 +13,7 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final OperacoesJogo OPERACOES_JOGO = new OperacoesJogo(scanner);
     private static final OperacoesUsuario OPERACOES_USUARIO = new OperacoesUsuario(scanner);
+    private static final OperacoesCarrinho OPERACOES_CARRINHO = new OperacoesCarrinho(scanner);
 
     public static void main(String[] args) {
         try {
@@ -29,6 +31,7 @@ public class Main {
             System.out.println("\n=== E-commerce de Jogos ===");
             System.out.println("1. Cadastrar jogo");
             System.out.println("2. Cadastrar usuário");
+            System.out.println("3. Colocar jogo no carrinho");
             System.out.println("0. Sair");
             System.out.print("Opção: ");
             opcao = Integer.parseInt(scanner.nextLine());
@@ -36,6 +39,7 @@ public class Main {
             switch (opcao) {
                 case 1 -> OPERACOES_JOGO.cadastrarJogo();
                 case 2 -> OPERACOES_USUARIO.cadastrarUsuario();
+                case 3 -> OPERACOES_CARRINHO.adicionarJogo();
                 case 0 -> System.out.println("Saindo...");
                 default -> System.out.println("Opção inválida.");
             }
